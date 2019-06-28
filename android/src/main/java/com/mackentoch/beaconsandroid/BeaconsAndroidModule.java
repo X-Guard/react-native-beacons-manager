@@ -43,16 +43,14 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     private BeaconManager mBeaconManager;
 
     public BeaconsAndroidModule(ReactApplicationContext reactContext) {
-      super(reactContext);
-      Log.d(LOG_TAG, "BeaconsAndroidModule - started");
-      this.mReactContext = reactContext;
-      this.mApplicationContext = reactContext.getApplicationContext();
-      this.mBeaconManager = BeaconManager.getInstanceForApplication(mApplicationContext);
-//        // Detect iBeacons ( http://stackoverflow.com/questions/25027983/is-this-the-correct-layout-to-detect-ibeacons-with-altbeacons-android-beacon-li )
-     addParser("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24");
-
-      mBeaconManager.bind(this);
-  }
+        super(reactContext);
+        Log.d(LOG_TAG, "BeaconsAndroidModule - started");
+        this.mReactContext = reactContext;
+        this.mApplicationContext = reactContext.getApplicationContext();
+        this.mBeaconManager = BeaconManager.getInstanceForApplication(mApplicationContext);
+        addParser("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24");
+        mBeaconManager.bind(this);
+    }
 
     @Override
     public String getName() {
@@ -166,10 +164,6 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     @Override
     public void onBeaconServiceConnect() {
         Log.v(LOG_TAG, "onBeaconServiceConnect");
-
-        // deprecated since v2.9 (see github: https://github.com/AltBeacon/android-beacon-library/releases/tag/2.9)
-        // mBeaconManager.setMonitorNotifier(mMonitorNotifier);
-        // mBeaconManager.setRangeNotifier(mRangeNotifier);
 
         mBeaconManager.addMonitorNotifier(mMonitorNotifier);
         mBeaconManager.addRangeNotifier(mRangeNotifier);
