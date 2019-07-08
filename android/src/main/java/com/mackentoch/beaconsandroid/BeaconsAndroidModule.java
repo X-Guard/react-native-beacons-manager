@@ -48,7 +48,8 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         this.mReactContext = reactContext;
         this.mApplicationContext = reactContext.getApplicationContext();
         this.mBeaconManager = BeaconManager.getInstanceForApplication(mApplicationContext);
-        addParser("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24");
+        // addParser("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24");
+          mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
         mBeaconManager.bind(this);
     }
 
@@ -76,13 +77,26 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    public void addParser(String parser) {
-        mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(parser));
+    public void addParser(String parser, Callback resolve, Callback reject) {
+        try {
+            Log.d(LOG_TAG, "BeaconsAndroidModule - addParser: " + parser);
+            mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(parser));
+            resolve.invoke();
+        } catch (Exception e) {
+            reject.invoke(e.getMessage());
+        }
+
     }
 
     @ReactMethod
-    public void removeParser(String parser) {
-        mBeaconManager.getBeaconParsers().remove(new BeaconParser().setBeaconLayout(parser));
+    public void removeParser(String parser, Callback resolve, Callback reject) {
+        try {	
+            Log.d(LOG_TAG, "BeaconsAndroidModule - removeParser: " + parser);		
+            mBeaconManager.getBeaconParsers().remove(new BeaconParser().setBeaconLayout(parser));		
+            resolve.invoke();	
+          } catch (Exception e) {	
+            reject.invoke(e.getMessage());	
+          }
     }
 
     @ReactMethod
