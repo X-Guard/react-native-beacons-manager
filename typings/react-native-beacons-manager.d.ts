@@ -5,79 +5,144 @@ declare module 'react-native-beacons-manager' {
     uuid: string,
     minor?: number,
     major?: number
-  };
+  }
 
-  ///////////////////////////////////////////////////////
-  // android only
-  ///////////////////////////////////////////////////////
+  export type AuthorizationStatus =
+    | 'authorizedAlways'
+    | 'authorizedWhenInUse'
+    | 'denied'
+    | 'notDetermined'
+    | 'restricted';
 
-  const ARMA_RSSI_FILTER: string;
-  const RUNNING_AVG_RSSI_FILTER: string
+  class Beacons {
+    ///////////////////////////////////////////////////////
+    // iOS only
+    ///////////////////////////////////////////////////////
 
-  function setHardwareEqualityEnforced(
-    flag: boolean
-  ): void;
+    requestAlwaysAuthorization(): void;
 
-  function detectIBeacons(): void;
+    requestWhenInUseAuthorization(): void;
 
-  function detectAltBeacons(): void;
+    getAuthorizationStatus(
+      callback: (status: AuthorizationStatus) => any
+    ): any;
 
-  function detectEstimotes(): void;
+    startUpdatingLocation(): void;
 
-  function detectEddystoneUID(): void;
+    stopUpdatingLocation(): void;
 
-  function detectEddystoneURL(): void;
+    shouldDropEmptyRanges(
+      drop: boolean
+    ): void;
 
-  function detectEddystoneTLM(): void;
+    ///////////////////////////////////////////////////////
+    // android only
+    ///////////////////////////////////////////////////////
+    ARMA_RSSI_FILTER: string;
+    RUNNING_AVG_RSSI_FILTER: string;
+    PARSER_IBEACON: string;
+    PARSER_ESTIMOTE: string;
+    PARSER_ALTBEACON: string;
+    PARSER_EDDYSTONE_TLM: string;
+    PARSER_EDDYSTONE_UID: string;
+    PARSER_EDDYSTONE_URL: string;
 
-  function detectCustomBeaconLayout(
-    parser: number
-  ): void;
+    setHardwareEqualityEnforced(
+      flag: boolean
+    ): void;
 
-  function setBackgroundScanPeriod(
-    period: number
-  ): void;
+    detectIBeacons(): void;
 
-  function setBackgroundBetweenScanPeriod(
-    period: number
-  ): void;
+    detectAltBeacons(): void;
 
-  function setForegroundScanPeriod(
-    period: number
-  ): void;
+    detectEstimotes(): void;
 
-  function setRssiFilter(
-    filterType: number,
-    avgModifier: number
-  ): void;
+    detectEddystoneUID(): void;
 
-  function getRangedRegions(): Promise<any>;
+    detectEddystoneURL(): void;
 
-  function getMonitoredRegions(): Promise<Array<BeaconRegion>>;
+    detectEddystoneTLM(): void;
 
-  function checkTransmissionSupported(): Promise<number>;
+    detectCustomBeaconLayout(
+      parser: number
+    ): void;
 
-  ///////////////////////////////////////////////////////
-  // common iOS and Android
-  ///////////////////////////////////////////////////////
+    setBackgroundScanPeriod(
+      period: number
+    ): void;
 
-  function startMonitoringForRegion(
-    region: BeaconRegion
-  ): Promise<any>;
+    setBackgroundBetweenScanPeriod(
+      period: number
+    ): void;
 
-  function startRangingBeaconsInRegion(
-    regionId: string,
-    beaconsUUID?: string
-  ): Promise<any>;
+    setForegroundScanPeriod(
+      period: number
+    ): void;
 
-  function stopMonitoringForRegion(
-    region: BeaconRegion
-  ): Promise<any>;
+    setRssiFilter(
+      filterType: number,
+      avgModifier: number
+    ): void;
 
-  function stopRangingBeaconsInRegion(
-    regionId: string,
-    beaconsUUID?: string
-  ): Promise<any>;
+    getRangedRegions(): Promise<any>;
 
+    getMonitoredRegions(): Promise<Array<BeaconRegion>>;
 
+    checkTransmissionSupported(): Promise<number>;
+
+    ///////////////////////////////////////////////////////
+    // common iOS and Android
+    ///////////////////////////////////////////////////////
+
+    startMonitoringForRegion(
+      region: BeaconRegion
+    ): Promise<any>;
+
+    /** IOS ONLY */
+    startRangingBeaconsInRegion(
+      region: BeaconRegion
+    ): Promise<any>;
+
+    /** ANDROID ONLY */
+    startRangingBeaconsInRegion(
+      // We can't simply reuse BeaconRegion as BeaconRegion.uuid is mandatory, whereas the uuid in this method is optional
+      region: {
+        identifier: string,
+        uuid?: string
+      }
+    ): Promise<any>;
+
+    /** ANDROID ONLY */
+    startRangingBeaconsInRegion(
+      regionId: string,
+      beaconsUUID?: string
+    ): Promise<any>;
+
+    stopMonitoringForRegion(
+      region: BeaconRegion
+    ): Promise<any>;
+
+    /** IOS ONLY */
+    stopRangingBeaconsInRegion(
+      region: BeaconRegion
+    ): Promise<any>;
+
+    /** ANDROID ONLY */
+    stopRangingBeaconsInRegion(
+      regionId: string,
+      beaconsUUID?: string
+    ): Promise<any>;
+
+    /** ANDROID ONLY */
+    stopRangingBeaconsInRegion(
+      // We can't simply reuse BeaconRegion as BeaconRegion.uuid is mandatory, whereas the uuid in this method is optional
+      region: {
+        identifier: string,
+        uuid?: string
+      }
+    ): Promise<any>;
+  }
+
+  const beacons: Beacons;
+  export default beacons;
 }

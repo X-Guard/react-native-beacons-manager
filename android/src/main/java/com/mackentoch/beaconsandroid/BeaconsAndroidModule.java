@@ -48,7 +48,6 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         this.mReactContext = reactContext;
         this.mApplicationContext = reactContext.getApplicationContext();
         this.mBeaconManager = BeaconManager.getInstanceForApplication(mApplicationContext);
-        // Detect iBeacons ( http://stackoverflow.com/questions/25027983/is-this-the-correct-layout-to-detect-ibeacons-with-altbeacons-android-beacon-li )
         addParser("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24");
         mBeaconManager.bind(this);
     }
@@ -166,10 +165,6 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     public void onBeaconServiceConnect() {
         Log.v(LOG_TAG, "onBeaconServiceConnect");
 
-        // deprecated since v2.9 (see github: https://github.com/AltBeacon/android-beacon-library/releases/tag/2.9)
-        // mBeaconManager.setMonitorNotifier(mMonitorNotifier);
-        // mBeaconManager.setRangeNotifier(mRangeNotifier);
-
         mBeaconManager.addMonitorNotifier(mMonitorNotifier);
         mBeaconManager.addRangeNotifier(mRangeNotifier);
     }
@@ -230,7 +225,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     private WritableMap createMonitoringResponse(Region region) {
         WritableMap map = new WritableNativeMap();
         map.putString("identifier", region.getUniqueId());
-        map.putString("uuid", region.getId1().toString());
+        map.putString("uuid", region.getId1() != null ? region.getId1().toString() : "");
         map.putInt("major", region.getId2() != null ? region.getId2().toInt() : 0);
         map.putInt("minor", region.getId3() != null ? region.getId3().toInt() : 0);
         return map;
@@ -292,8 +287,16 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             b.putInt("major", beacon.getId2().toInt());
             b.putInt("minor", beacon.getId3().toInt());
             b.putInt("rssi", beacon.getRssi());
-            b.putDouble("distance", beacon.getDistance());
-            b.putString("proximity", getProximity(beacon.getDistance()));
+            if(beacon.getDistance() == Double.POSITIVE_INFINITY	                    
+                    || Double.isNaN(beacon.getDistance())
+                    || beacon.getDistance() == Double.NaN
+                    || beacon.getDistance() == Double.NEGATIVE_INFINITY){
+                  b.putDouble("distance", 999.0);
+                  b.putString("proximity", "far");
+              }else {
+                  b.putDouble("distance", beacon.getDistance());
+                  b.putString("proximity", getProximity(beacon.getDistance()));
+              }
             a.pushMap(b);
         }
         map.putArray("beacons", a);
@@ -329,9 +332,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
      * Utils
      **********************************************************************************************/
     private void sendEvent(ReactContext reactContext, String eventName, @Nullable WritableMap params) {
-        reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
+        if (reactContext.hasActiveCatalystInstance()) {      
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);    
+        }
     }
 
     private Region createRegion(String regionId, String beaconUuid) {
