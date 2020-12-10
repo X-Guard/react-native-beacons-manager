@@ -16,6 +16,12 @@
 
 #import "RNiBeacon.h"
 
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
 static NSString *const kEddystoneRegionID = @"EDDY_STONE_REGION_ID";
 
 @interface RNiBeacon() <CLLocationManagerDelegate, ESSBeaconScannerDelegate>
@@ -34,18 +40,40 @@ RCT_EXPORT_MODULE()
 
 - (instancetype)init
 {
-  if (self = [super init]) {
-    self.locationManager = [[CLLocationManager alloc] init];
+  if (SYSTEM_VERSION_LESS_THAN(@"13.0")) {
+    if (self = [super init]) {
+      self.locationManager = [[CLLocationManager alloc] init];
 
-    self.locationManager.delegate = self;
-    self.locationManager.pausesLocationUpdatesAutomatically = NO;
-    self.dropEmptyRanges = NO;
-      
-    self.eddyStoneScanner = [[ESSBeaconScanner alloc] init];
-    self.eddyStoneScanner.delegate = self;
+      self.locationManager.delegate = self;
+      self.locationManager.pausesLocationUpdatesAutomatically = NO;
+      self.dropEmptyRanges = NO;
+        
+      self.eddyStoneScanner = [[ESSBeaconScanner alloc] init];
+      self.eddyStoneScanner.delegate = self;
+    }
   }
-
   return self;
+}
+
+- (instancetype)manualInit
+{
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0")) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            self.locationManager = [[CLLocationManager alloc] init];
+
+            self.locationManager.delegate = self;
+            self.locationManager.pausesLocationUpdatesAutomatically = NO;
+        }];
+        self.dropEmptyRanges = NO;
+          
+        self.eddyStoneScanner = [[ESSBeaconScanner alloc] init];
+        self.eddyStoneScanner.delegate = self;
+    }
+    return self;
+}
+
+RCT_EXPORT_METHOD(manualInitialization) {
+    [self manualInit];
 }
 
 - (NSArray<NSString *> *)supportedEvents
