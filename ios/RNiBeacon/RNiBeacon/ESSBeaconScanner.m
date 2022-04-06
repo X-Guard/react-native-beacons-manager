@@ -61,14 +61,17 @@ static NSString *const kSeenCacheOnLostTimer = @"on_lost_timer";
     _onLostTimeout = 5.0;
     _tlmCache = [NSMutableDictionary dictionary];
     _beaconOperationsQueue = dispatch_queue_create(kBeaconsOperationQueueName, NULL);
-    _centralManager = [[CBCentralManager alloc] initWithDelegate:self
-                                                           queue:_beaconOperationsQueue];
   }
 
   return self;
 }
 
 - (void)startScanning {
+
+      if(!_centralManager) {
+    _centralManager = [[CBCentralManager alloc] initWithDelegate:self
+                                                           queue:_beaconOperationsQueue];
+  }
   dispatch_async(_beaconOperationsQueue, ^{
     if (_centralManager.state != CBCentralManagerStatePoweredOn) {
       NSLog(@"CBCentralManager state is %ld, cannot start or stop scanning",
