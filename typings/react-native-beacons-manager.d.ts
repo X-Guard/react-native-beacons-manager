@@ -1,4 +1,4 @@
-declare module 'react-native-beacons-manager' {
+declare module '@x-guard/react-native-beacons-manager' {
 
   export interface BeaconRegion {
     identifier: string,
