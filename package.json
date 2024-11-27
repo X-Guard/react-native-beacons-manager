@@ -1,6 +1,6 @@
 {
   "name": "@x-guard/react-native-beacons-manager",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "React-Native library for detecting beacons (iOS and Android)",
   "keywords": [
     "react-native",
